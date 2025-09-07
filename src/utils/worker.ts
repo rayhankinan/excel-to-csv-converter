@@ -2,11 +2,12 @@ import * as XLSX from "xlsx";
 
 import type { FormSchema } from "@/types/form";
 
-// TODO: Change all of these to stream: https://docs.sheetjs.com/docs/demos/bigdata/stream/#browser
+// TODO: Change all of these to stream:
+// 1. https://docs.sheetjs.com/docs/demos/bigdata/stream/#browser
+// 2. https://docs.sheetjs.com/docs/demos/bigdata/worker/#streaming-write
 
 export const excel2csv = ({ file, password, sheets }: FormSchema) => {
-  const selectedFile = file[0];
-  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(selectedFile);
+  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
@@ -17,8 +18,7 @@ export const excel2csv = ({ file, password, sheets }: FormSchema) => {
 };
 
 export const excel2txt = ({ file, password, sheets }: FormSchema) => {
-  const selectedFile = file[0];
-  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(selectedFile);
+  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
@@ -29,8 +29,7 @@ export const excel2txt = ({ file, password, sheets }: FormSchema) => {
 };
 
 export const excel2html = ({ file, password, sheets }: FormSchema) => {
-  const selectedFile = file[0];
-  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(selectedFile);
+  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,

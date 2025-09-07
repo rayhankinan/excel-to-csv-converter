@@ -3,7 +3,7 @@ import { z } from "zod";
 import { FILE_TYPE } from "@/const/file-type";
 
 const formSchema = z.object({
-  file: z.instanceof(FileList, {
+  file: z.instanceof(File, {
     error: "Please upload a valid Excel file.",
   }),
   type: z.enum([FILE_TYPE.CSV, FILE_TYPE.TXT, FILE_TYPE.HTML], {

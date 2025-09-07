@@ -93,7 +93,9 @@ export default function Page(): JSX.Element {
                         ref={ref}
                         name={name}
                         onBlur={onBlur}
-                        onChange={(e) => onChange(e.target.files)}
+                        onChange={(e) => {
+                          if (e.target.files) onChange(e.target.files[0]);
+                        }}
                       />
                     </FormControl>
                     <FormDescription>
