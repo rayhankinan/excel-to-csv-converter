@@ -1,11 +1,16 @@
-import { Button } from "@/components/ui/button";
+import type { JSX } from "react";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "@/components/ui/sonner";
+import Page from "@/components/app";
+import queryClient from "@/utils/query";
 
-function App() {
+export default function App(): JSX.Element {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center">
-      <Button>Click me</Button>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <Page />
+      <Toaster position="bottom-right" />
+      <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />
+    </QueryClientProvider>
   );
 }
-
-export default App;
