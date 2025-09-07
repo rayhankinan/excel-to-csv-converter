@@ -175,7 +175,7 @@ export default function Page(): JSX.Element {
                 {form.formState.isSubmitting ? (
                   <LoaderCircle className="animate-spin" />
                 ) : (
-                  <span className="text-sm">Convert</span>
+                  <span>Convert</span>
                 )}
               </Button>
             </CardFooter>
