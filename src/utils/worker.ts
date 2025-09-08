@@ -1,10 +1,11 @@
+import { Readable } from "node:stream";
+import { makeDefaultReadableStreamFromNodeReadable } from "node-readable-to-web-readable-stream";
+import * as Comlink from "comlink";
 import * as XLSX from "xlsx";
 
 import type { FormSchema } from "@/types/form";
 
-// TODO: Change all of these to stream:
-// 1. https://docs.sheetjs.com/docs/demos/bigdata/stream/#browser
-// 2. https://docs.sheetjs.com/docs/demos/bigdata/worker/#streaming-write
+XLSX.stream.set_readable(Readable);
 
 export const excel2csv = ({ file, password, sheets }: FormSchema) => {
   const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
@@ -14,10 +15,17 @@ export const excel2csv = ({ file, password, sheets }: FormSchema) => {
     sheets,
   });
 
-  return XLSX.utils.sheet_to_csv(workbook.Sheets[workbook.SheetNames[0]]);
+  const stream: Readable = XLSX.stream.to_csv(
+    workbook.Sheets[workbook.SheetNames[0]]
+  );
+
+  const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
+  const response = new Response(webStream);
+
+  return Comlink.proxy(response);
 };
 
-export const excel2txt = ({ file, password, sheets }: FormSchema) => {
+export const excel2json = ({ file, password, sheets }: FormSchema) => {
   const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
@@ -25,7 +33,14 @@ export const excel2txt = ({ file, password, sheets }: FormSchema) => {
     sheets,
   });
 
-  return XLSX.utils.sheet_to_txt(workbook.Sheets[workbook.SheetNames[0]]);
+  const stream: Readable = XLSX.stream.to_json(
+    workbook.Sheets[workbook.SheetNames[0]]
+  );
+
+  const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
+  const response = new Response(webStream);
+
+  return Comlink.proxy(response);
 };
 
 export const excel2html = ({ file, password, sheets }: FormSchema) => {
@@ -36,5 +51,12 @@ export const excel2html = ({ file, password, sheets }: FormSchema) => {
     sheets,
   });
 
-  return XLSX.utils.sheet_to_html(workbook.Sheets[workbook.SheetNames[0]]);
+  const stream: Readable = XLSX.stream.to_html(
+    workbook.Sheets[workbook.SheetNames[0]]
+  );
+
+  const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
+  const response = new Response(webStream);
+
+  return Comlink.proxy(response);
 };

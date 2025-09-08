@@ -4,10 +4,10 @@ import { toast } from "sonner";
 import type { FormSchema } from "@/types/form";
 import workerInstance from "@/utils/comlink";
 
-export default function useConvertTXT() {
+export default function useConvertJSON() {
   return useMutation({
-    mutationFn: (args: FormSchema) => workerInstance.excel2txt(args),
+    mutationFn: (args: FormSchema) => workerInstance.excel2json(args),
     onError: () =>
-      toast.error("Failed to convert file to TXT. Please try again."),
+      toast.error("Failed to convert file to JSON. Please try again."),
   });
 }

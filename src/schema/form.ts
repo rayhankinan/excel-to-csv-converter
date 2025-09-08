@@ -6,7 +6,7 @@ const formSchema = z.object({
   file: z.instanceof(File, {
     error: "Please upload a valid Excel file.",
   }),
-  type: z.enum([FILE_TYPE.CSV, FILE_TYPE.TXT, FILE_TYPE.HTML], {
+  type: z.enum([FILE_TYPE.CSV, FILE_TYPE.JSON, FILE_TYPE.HTML], {
     error: "Please select a valid file type.",
   }),
   password: z

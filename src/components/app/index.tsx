@@ -36,13 +36,13 @@ import {
 import formSchema from "@/schema/form";
 import type { FormSchema } from "@/types/form";
 import useConvertCSV from "@/hooks/useConvertCSV";
-import useConvertTXT from "@/hooks/useConvertTXT";
+import useConvertJSON from "@/hooks/useConvertJSON";
 import useConvertHTML from "@/hooks/useConvertHTML";
-import { FILE_TYPE, MIME_TYPE, EXTENSION } from "@/const/file-type";
+import { FILE_TYPE, EXTENSION } from "@/const/file-type";
 
 export default function Page(): JSX.Element {
   const { mutateAsync: convertToCSV } = useConvertCSV();
-  const { mutateAsync: convertToTXT } = useConvertTXT();
+  const { mutateAsync: convertToJSON } = useConvertJSON();
   const { mutateAsync: convertToHTML } = useConvertHTML();
 
   const form = useForm<FormSchema>({
@@ -51,21 +51,19 @@ export default function Page(): JSX.Element {
 
   const onSubmit = useCallback(
     async (data: FormSchema) => {
-      const result = await match(data.type)
+      const response = await match(data.type)
         .with(FILE_TYPE.CSV, () => convertToCSV(data))
-        .with(FILE_TYPE.TXT, () => convertToTXT(data))
         .with(FILE_TYPE.HTML, () => convertToHTML(data))
+        .with(FILE_TYPE.JSON, () => convertToJSON(data))
         .exhaustive();
 
-      const blob = new Blob([result], { type: MIME_TYPE[data.type] });
-
-      await fileSave(blob, {
+      await fileSave(response.blob(), {
         fileName: `converted${EXTENSION[data.type]}`,
         extensions: [EXTENSION[data.type]],
         description: "Converted file",
       });
     },
-    [convertToCSV, convertToHTML, convertToTXT]
+    [convertToCSV, convertToJSON, convertToHTML]
   );
 
   return (
@@ -124,7 +122,7 @@ export default function Page(): JSX.Element {
                           <SelectGroup>
                             <SelectLabel>File Type</SelectLabel>
                             <SelectItem value={FILE_TYPE.CSV}>CSV</SelectItem>
-                            <SelectItem value={FILE_TYPE.TXT}>TXT</SelectItem>
+                            <SelectItem value={FILE_TYPE.JSON}>JSON</SelectItem>
                             <SelectItem value={FILE_TYPE.HTML}>HTML</SelectItem>
                           </SelectGroup>
                         </SelectContent>
