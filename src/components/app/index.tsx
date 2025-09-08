@@ -61,15 +61,20 @@ export default function Page(): JSX.Element {
         ],
       });
 
-      const response = await match(data.type)
-        .with(FILE_TYPE.CSV, () => convertToCSV(data))
-        .with(FILE_TYPE.HTML, () => convertToHTML(data))
+      await match(data.type)
+        .with(FILE_TYPE.CSV, () =>
+          convertToCSV({
+            ...data,
+            handle: fileHandle,
+          })
+        )
+        .with(FILE_TYPE.HTML, () =>
+          convertToHTML({
+            ...data,
+            handle: fileHandle,
+          })
+        )
         .exhaustive();
-      const blob = await response.blob();
-
-      const writableStream = await fileHandle.createWritable();
-      await writableStream.write(blob);
-      await writableStream.close();
 
       toast.success("File converted successfully!");
     },

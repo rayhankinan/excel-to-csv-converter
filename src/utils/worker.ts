@@ -1,15 +1,18 @@
 import { Readable } from "node:stream";
 import { makeDefaultReadableStreamFromNodeReadable } from "node-readable-to-web-readable-stream";
-import * as Comlink from "comlink";
 import * as XLSX from "xlsx";
 
-import type { FormSchema } from "@/types/form";
-import { FILE_TYPE, MIME_TYPE } from "@/const/file-type";
+import type { WorkerArgs } from "@/types/worker";
 
 XLSX.stream.set_readable(Readable);
 
-export const excel2csv = ({ file, password, sheets }: FormSchema) => {
-  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
+export const excel2csv = async ({
+  file,
+  password,
+  sheets,
+  handle,
+}: WorkerArgs) => {
+  const arrayBuffer = await file.arrayBuffer();
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
@@ -19,19 +22,18 @@ export const excel2csv = ({ file, password, sheets }: FormSchema) => {
   const stream: Readable = XLSX.stream.to_csv(
     workbook.Sheets[workbook.SheetNames[0]]
   );
-
   const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
-  const response = new Response(webStream, {
-    headers: {
-      "content-type": MIME_TYPE[FILE_TYPE.CSV],
-    },
-  });
-
-  return Comlink.proxy(response);
+  const writeStream = await handle.createWritable();
+  await webStream.pipeTo(writeStream);
 };
 
-export const excel2html = ({ file, password, sheets }: FormSchema) => {
-  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
+export const excel2html = async ({
+  file,
+  password,
+  sheets,
+  handle,
+}: WorkerArgs) => {
+  const arrayBuffer = await file.arrayBuffer();
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
@@ -41,13 +43,7 @@ export const excel2html = ({ file, password, sheets }: FormSchema) => {
   const stream: Readable = XLSX.stream.to_html(
     workbook.Sheets[workbook.SheetNames[0]]
   );
-
   const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
-  const response = new Response(webStream, {
-    headers: {
-      "content-type": MIME_TYPE[FILE_TYPE.HTML],
-    },
-  });
-
-  return Comlink.proxy(response);
+  const writeStream = await handle.createWritable();
+  await webStream.pipeTo(writeStream);
 };
