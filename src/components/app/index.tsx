@@ -57,7 +57,9 @@ export default function Page(): JSX.Element {
         .with(FILE_TYPE.JSON, () => convertToJSON(data))
         .exhaustive();
 
-      await fileSave(response.blob(), {
+      const blob = await response.blob();
+
+      await fileSave(blob, {
         fileName: `converted${EXTENSION[data.type]}`,
         extensions: [EXTENSION[data.type]],
         description: "Converted file",
