@@ -64,14 +64,22 @@ export default function Page(): JSX.Element {
       await match(data.type)
         .with(FILE_TYPE.CSV, () =>
           convertToCSV({
-            ...data,
             handle: fileHandle,
+            file: data.file,
+            opts: {
+              sheet: data?.sheets,
+              password: data?.password,
+            },
           })
         )
         .with(FILE_TYPE.HTML, () =>
           convertToHTML({
-            ...data,
             handle: fileHandle,
+            file: data.file,
+            opts: {
+              sheet: data?.sheets,
+              password: data?.password,
+            },
           })
         )
         .exhaustive();

@@ -1,5 +1,7 @@
-import type { FormSchema } from "@/types/form";
+import * as XLSX from "xlsx";
 
-export type WorkerArgs = FormSchema & {
+export type WorkerArgs = {
   handle: FileSystemFileHandle;
+  file: File;
+  opts?: XLSX.ParsingOptions;
 };
