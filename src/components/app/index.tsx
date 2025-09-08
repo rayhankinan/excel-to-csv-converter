@@ -36,13 +36,11 @@ import {
 import formSchema from "@/schema/form";
 import type { FormSchema } from "@/types/form";
 import useConvertCSV from "@/hooks/useConvertCSV";
-import useConvertJSON from "@/hooks/useConvertJSON";
 import useConvertHTML from "@/hooks/useConvertHTML";
 import { FILE_TYPE, EXTENSION } from "@/const/file-type";
 
 export default function Page(): JSX.Element {
   const { mutateAsync: convertToCSV } = useConvertCSV();
-  const { mutateAsync: convertToJSON } = useConvertJSON();
   const { mutateAsync: convertToHTML } = useConvertHTML();
 
   const form = useForm<FormSchema>({
@@ -54,18 +52,18 @@ export default function Page(): JSX.Element {
       const response = await match(data.type)
         .with(FILE_TYPE.CSV, () => convertToCSV(data))
         .with(FILE_TYPE.HTML, () => convertToHTML(data))
-        .with(FILE_TYPE.JSON, () => convertToJSON(data))
         .exhaustive();
 
       const blob = await response.blob();
 
+      // BUG: SecurityError: Failed to execute 'showSaveFilePicker' on 'Window': Must be handling a user gesture to show a file picker.
       await fileSave(blob, {
         fileName: `converted${EXTENSION[data.type]}`,
         extensions: [EXTENSION[data.type]],
         description: "Converted file",
       });
     },
-    [convertToCSV, convertToJSON, convertToHTML]
+    [convertToCSV, convertToHTML]
   );
 
   return (
@@ -124,7 +122,6 @@ export default function Page(): JSX.Element {
                           <SelectGroup>
                             <SelectLabel>File Type</SelectLabel>
                             <SelectItem value={FILE_TYPE.CSV}>CSV</SelectItem>
-                            <SelectItem value={FILE_TYPE.JSON}>JSON</SelectItem>
                             <SelectItem value={FILE_TYPE.HTML}>HTML</SelectItem>
                           </SelectGroup>
                         </SelectContent>

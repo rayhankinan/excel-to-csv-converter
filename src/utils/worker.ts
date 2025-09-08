@@ -4,59 +4,50 @@ import * as Comlink from "comlink";
 import * as XLSX from "xlsx";
 
 import type { FormSchema } from "@/types/form";
+import { FILE_TYPE, MIME_TYPE } from "@/const/file-type";
 
 XLSX.stream.set_readable(Readable);
 
 export const excel2csv = ({ file, password, sheets }: FormSchema) => {
   const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
+
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
     sheets,
   });
-
   const stream: Readable = XLSX.stream.to_csv(
     workbook.Sheets[workbook.SheetNames[0]]
   );
 
   const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
-  const response = new Response(webStream);
-
-  return Comlink.proxy(response);
-};
-
-export const excel2json = ({ file, password, sheets }: FormSchema) => {
-  const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
-  const workbook = XLSX.read(arrayBuffer, {
-    dense: true,
-    password,
-    sheets,
+  const response = new Response(webStream, {
+    headers: {
+      "content-type": MIME_TYPE[FILE_TYPE.CSV],
+    },
   });
-
-  const stream: Readable = XLSX.stream.to_json(
-    workbook.Sheets[workbook.SheetNames[0]]
-  );
-
-  const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
-  const response = new Response(webStream);
 
   return Comlink.proxy(response);
 };
 
 export const excel2html = ({ file, password, sheets }: FormSchema) => {
   const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
+
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
     sheets,
   });
-
   const stream: Readable = XLSX.stream.to_html(
     workbook.Sheets[workbook.SheetNames[0]]
   );
 
   const webStream = makeDefaultReadableStreamFromNodeReadable(stream);
-  const response = new Response(webStream);
+  const response = new Response(webStream, {
+    headers: {
+      "content-type": MIME_TYPE[FILE_TYPE.HTML],
+    },
+  });
 
   return Comlink.proxy(response);
 };
