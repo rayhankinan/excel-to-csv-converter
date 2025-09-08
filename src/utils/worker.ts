@@ -10,12 +10,12 @@ XLSX.stream.set_readable(Readable);
 
 export const excel2csv = ({ file, password, sheets }: FormSchema) => {
   const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
-
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
     sheets,
   });
+
   const stream: Readable = XLSX.stream.to_csv(
     workbook.Sheets[workbook.SheetNames[0]]
   );
@@ -32,12 +32,12 @@ export const excel2csv = ({ file, password, sheets }: FormSchema) => {
 
 export const excel2html = ({ file, password, sheets }: FormSchema) => {
   const arrayBuffer = new FileReaderSync().readAsArrayBuffer(file);
-
   const workbook = XLSX.read(arrayBuffer, {
     dense: true,
     password,
     sheets,
   });
+
   const stream: Readable = XLSX.stream.to_html(
     workbook.Sheets[workbook.SheetNames[0]]
   );

@@ -1,5 +1,4 @@
 import { match } from "ts-pattern";
-import { fileSave } from "browser-fs-access";
 import { useCallback, type JSX } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,7 +36,8 @@ import formSchema from "@/schema/form";
 import type { FormSchema } from "@/types/form";
 import useConvertCSV from "@/hooks/useConvertCSV";
 import useConvertHTML from "@/hooks/useConvertHTML";
-import { FILE_TYPE, EXTENSION } from "@/const/file-type";
+import { FILE_TYPE, EXTENSION, MIME_TYPE } from "@/const/file-type";
+import { toast } from "sonner";
 
 export default function Page(): JSX.Element {
   const { mutateAsync: convertToCSV } = useConvertCSV();
@@ -49,19 +49,29 @@ export default function Page(): JSX.Element {
 
   const onSubmit = useCallback(
     async (data: FormSchema) => {
+      const fileHandle = await window.showSaveFilePicker({
+        suggestedName: `converted${EXTENSION[data.type]}`,
+        types: [
+          {
+            description: "Converted File",
+            accept: {
+              [MIME_TYPE[data.type]]: [EXTENSION[data.type]],
+            },
+          },
+        ],
+      });
+
       const response = await match(data.type)
         .with(FILE_TYPE.CSV, () => convertToCSV(data))
         .with(FILE_TYPE.HTML, () => convertToHTML(data))
         .exhaustive();
-
       const blob = await response.blob();
 
-      // BUG: SecurityError: Failed to execute 'showSaveFilePicker' on 'Window': Must be handling a user gesture to show a file picker.
-      await fileSave(blob, {
-        fileName: `converted${EXTENSION[data.type]}`,
-        extensions: [EXTENSION[data.type]],
-        description: "Converted file",
-      });
+      const writableStream = await fileHandle.createWritable();
+      await writableStream.write(blob);
+      await writableStream.close();
+
+      toast.success("File converted successfully!");
     },
     [convertToCSV, convertToHTML]
   );
